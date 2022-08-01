@@ -1,8 +1,8 @@
 ﻿using Stylet;
 
-namespace Viewer.Pages
+namespace Viewer.Pages;
+
+public class ShellViewModel : Screen
 {
-    public class ShellViewModel : Screen
-    {
-    }
+    public HexConfigurationViewModel Configuration { get; set; } = new();
 }

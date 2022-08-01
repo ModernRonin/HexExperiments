@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +10,9 @@ namespace Viewer;
 
 public class HexView : Control
 {
+    public static readonly DependencyProperty RingCountProperty = DependencyProperty.Register("RingCount",
+        typeof(int), typeof(HexView), new PropertyMetadata(default(int)));
+
     static HexView()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexView),
@@ -17,6 +21,7 @@ public class HexView : Control
 
     protected override void OnRender(DrawingContext ctx)
     {
+        Trace.WriteLine("OnRender()");
         ctx.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1d),
             new Rect(0, 0, RenderSize.Width, RenderSize.Height));
 
@@ -45,17 +50,26 @@ public class HexView : Control
         }
     }
 
-    static IEnumerable<HexCoordinate> Coordinates
+    public int RingCount
+    {
+        get => (int)GetValue(RingCountProperty);
+        set
+        {
+            Trace.WriteLine($"Setting RingCount to {value}");
+            SetValue(RingCountProperty, value);
+        }
+    }
+
+    IEnumerable<HexCoordinate> Coordinates
     {
         get
         {
-            const int rings = 3;
-            for (var q = -rings; q < rings + 1; ++q)
+            for (var q = -RingCount; q < RingCount + 1; ++q)
             {
-                for (var r = -rings; r < rings + 1; ++r)
+                for (var r = -RingCount; r < RingCount + 1; ++r)
                 {
                     var point = new HexCoordinate(q, r);
-                    if (Math.Abs(point.S) <= rings) yield return point;
+                    if (Math.Abs(point.S) <= RingCount) yield return point;
                 }
             }
         }

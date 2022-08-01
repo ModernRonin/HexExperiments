@@ -13,6 +13,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File" />
         </Menu>
-        <viewer:HexView />
+        <ContentControl s:View.Model="{Binding Configuration}" DockPanel.Dock="Left" />
+        <viewer:HexView RingCount="{Binding Configuration.RingCount,Mode=OneWay}"/>
     </DockPanel>
 </Window>
