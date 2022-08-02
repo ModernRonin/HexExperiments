@@ -21,6 +21,8 @@ public class HexViewer : Control
 
     public static readonly DependencyProperty ScaleProperty = MakeDp(nameof(Scale), typeof(float), true);
 
+    public static readonly DependencyProperty CellsProperty = MakeDp(nameof(Cells), typeof(Cell[]), true);
+
     static HexViewer() =>
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
             new FrameworkPropertyMetadata(typeof(HexViewer)));
@@ -63,6 +65,12 @@ public class HexViewer : Control
     {
         var pixelPosition = e.GetPosition(this) - Origin;
         UnderMouse = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Scale);
+    }
+
+    public Cell[] Cells
+    {
+        get => (Cell[])GetValue(CellsProperty);
+        set => SetValue(CellsProperty, value);
     }
 
     public int RingCount
