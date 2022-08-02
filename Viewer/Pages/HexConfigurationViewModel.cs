@@ -1,14 +1,8 @@
-﻿using Stylet;
+﻿using PropertyChanged.SourceGenerator;
 
 namespace Viewer.Pages;
 
-public class HexConfigurationViewModel : PropertyChangedBase
+public partial class HexConfigurationViewModel
 {
-    int _ringCount = 5;
-
-    public int RingCount
-    {
-        get => _ringCount;
-        set => SetAndNotify(ref _ringCount, value);
-    }
+    [Notify] int _ringCount = 5;
 }

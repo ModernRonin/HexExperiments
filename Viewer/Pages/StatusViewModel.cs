@@ -1,14 +1,6 @@
-﻿using Stylet;
+﻿namespace Viewer.Pages;
 
-namespace Viewer.Pages;
-
-public class StatusViewModel : PropertyChangedBase
+public class StatusViewModel
 {
-    HexCoordinate? _underMouse;
-
-    public HexCoordinate? UnderMouse
-    {
-        get => _underMouse;
-        set => SetAndNotify(ref _underMouse, value);
-    }
+    // [Notify] HexCoordinate? _underMouse;
 }
