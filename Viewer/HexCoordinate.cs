@@ -4,18 +4,11 @@ using static System.Math;
 
 namespace Viewer;
 
-public readonly struct HexCoordinate
+public readonly record struct HexCoordinate(int Q, int R)
 {
     static readonly double _rootOf3 = Sqrt(3);
-    public int Q { get; }
-    public int R { get; }
-    public int S => -Q - R;
 
-    public HexCoordinate(int q, int r)
-    {
-        Q = q;
-        R = r;
-    }
+    public override string ToString() => $"({Q}/{R}/{S})";
 
     public static HexCoordinate FromPoint(Point point, double scale)
     {
@@ -31,6 +24,8 @@ public readonly struct HexCoordinate
         return new Point(x, y);
     }
 
+    public int S => -Q - R;
+
     static HexCoordinate Round(double q, double r)
     {
         var s = -q - r;
@@ -41,6 +36,4 @@ public readonly struct HexCoordinate
 
         return new HexCoordinate((int)q, (int)r);
     }
-
-    public override string ToString() => $"({Q}/{R}/{S})";
 }
