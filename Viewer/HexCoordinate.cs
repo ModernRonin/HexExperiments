@@ -22,4 +22,6 @@ public readonly struct HexCoordinate
         var y = scale * (3d       / 2d * R);
         return new Point(x, y);
     }
+
+    public override string ToString() => $"({Q}/{R}/{S})";
 }

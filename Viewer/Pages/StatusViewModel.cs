@@ -11,4 +11,6 @@ public class StatusViewModel : PropertyChangedBase
         get => _underMouse;
         set => SetAndNotify(ref _underMouse, value);
     }
+
+    public string UnderMouseText => _underMouse?.ToString() ?? "n/a";
 }
