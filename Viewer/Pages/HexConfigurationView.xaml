@@ -5,12 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <StackPanel MinWidth="150">
-            <Label Content="Rings" Target="{Binding ElementName=RingCount}" />
+    <Grid MinWidth="150">
+        <Grid.Resources>
+            <Style TargetType="Border">
+                <Setter Property="Padding" Value="5,0,5,0" />
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Label Content="Rings" Target="{Binding ElementName=RingCount}" Grid.Column="0"/>
+        <Border  Grid.Column="1">
             <Slider Minimum="0" Maximum="10" Value="{Binding RingCount}" TickPlacement="BottomRight" TickFrequency="1"
                     Name="RingCount" />
-            <TextBlock Text="{Binding RingCount}" />
-        </StackPanel>
+        </Border>
+        <TextBlock Text="{Binding RingCount}" Grid.Column="2"/>
     </Grid>
 </UserControl>
