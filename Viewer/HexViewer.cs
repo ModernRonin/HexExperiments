@@ -9,6 +9,8 @@ namespace Viewer;
 
 public class HexViewer : Control
 {
+    const double SixthOfPi = Math.PI / 6;
+
     public static readonly DependencyProperty RingCountProperty = DependencyProperty.Register("RingCount",
         typeof(int), typeof(HexViewer),
         new FrameworkPropertyMetadata(default(int), FrameworkPropertyMetadataOptions.AffectsRender));
@@ -43,7 +45,7 @@ public class HexViewer : Control
 
             Point corner(int index)
             {
-                var angle = Math.PI / 3 * index - Math.PI / 6;
+                var angle = SixthOfPi * (2 * index - 1);
                 return new Point(center.X + scale * Math.Cos(angle), center.Y + scale * Math.Sin(angle));
             }
         }
