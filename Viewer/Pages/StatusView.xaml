@@ -18,8 +18,8 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem>
-                <TextBlock>Status</TextBlock>
+            <StatusBarItem Grid.Column="2">
+                <TextBlock Text="{Binding UnderMouseText}" />
             </StatusBarItem>
         </StatusBar>
     </Grid>
