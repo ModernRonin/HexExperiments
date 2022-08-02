@@ -4,10 +4,10 @@
     xmlns:local="clr-namespace:Viewer">
 
 
-    <Style TargetType="{x:Type local:HexView}">
+    <Style TargetType="{x:Type local:HexViewer}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:HexView}">
+                <ControlTemplate TargetType="{x:Type local:HexViewer}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,20 +7,20 @@ using System.Windows.Media;
 
 namespace Viewer;
 
-public class HexView : Control
+public class HexViewer : Control
 {
     public static readonly DependencyProperty RingCountProperty = DependencyProperty.Register("RingCount",
-        typeof(int), typeof(HexView), new PropertyMetadata(default(int)));
+        typeof(int), typeof(HexViewer),
+        new FrameworkPropertyMetadata(default(int), FrameworkPropertyMetadataOptions.AffectsRender));
 
-    static HexView()
+    static HexViewer()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(HexView),
-            new FrameworkPropertyMetadata(typeof(HexView)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
+            new FrameworkPropertyMetadata(typeof(HexViewer)));
     }
 
     protected override void OnRender(DrawingContext ctx)
     {
-        Trace.WriteLine("OnRender()");
         ctx.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1d),
             new Rect(0, 0, RenderSize.Width, RenderSize.Height));
 
@@ -53,11 +52,7 @@ public class HexView : Control
     public int RingCount
     {
         get => (int)GetValue(RingCountProperty);
-        set
-        {
-            Trace.WriteLine($"Setting RingCount to {value}");
-            SetValue(RingCountProperty, value);
-        }
+        set => SetValue(RingCountProperty, value);
     }
 
     IEnumerable<HexCoordinate> Coordinates
