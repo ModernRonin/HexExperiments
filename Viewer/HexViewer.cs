@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Hex.Logic;
 
 namespace Viewer;
 
@@ -22,8 +23,8 @@ public class HexViewer : Control
         typeof(HexCoordinate?), typeof(HexViewer), new PropertyMetadata(default(HexCoordinate?)));
 
     public static readonly DependencyProperty ScaleProperty = DependencyProperty.Register(nameof(Scale),
-        typeof(double), typeof(HexViewer),
-        new FrameworkPropertyMetadata(default(double), FrameworkPropertyMetadataOptions.AffectsRender));
+        typeof(float), typeof(HexViewer),
+        new FrameworkPropertyMetadata(default(float), FrameworkPropertyMetadataOptions.AffectsRender));
 
     static HexViewer() =>
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
@@ -38,7 +39,7 @@ public class HexViewer : Control
 
         foreach (var coordinate in Coordinates)
         {
-            var point = coordinate.ToPoint(Scale) + Origin;
+            var point = coordinate.ToPoint(Scale).ToPoint() + Origin;
             drawHex(point, Scale);
         }
 
@@ -66,7 +67,7 @@ public class HexViewer : Control
     protected override void OnMouseMove(MouseEventArgs e)
     {
         var pixelPosition = e.GetPosition(this) - Origin;
-        UnderMouse = HexCoordinate.FromPoint(pixelPosition, Scale);
+        UnderMouse = HexCoordinate.FromPoint(pixelPosition.ToVector(), Scale);
     }
 
     public int RingCount
@@ -75,9 +76,9 @@ public class HexViewer : Control
         set => SetValue(RingCountProperty, value);
     }
 
-    public double Scale
+    public float Scale
     {
-        get => (double)GetValue(ScaleProperty);
+        get => (float)GetValue(ScaleProperty);
         set => SetValue(ScaleProperty, value);
     }
 

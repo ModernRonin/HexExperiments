@@ -1,4 +1,5 @@
-﻿using PropertyChanged.SourceGenerator;
+﻿using Hex.Logic;
+using PropertyChanged.SourceGenerator;
 
 namespace Viewer.Pages;
 
