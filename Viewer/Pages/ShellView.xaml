@@ -15,6 +15,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File" />
         </Menu>
+        <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom" />
         <ContentControl s:View.Model="{Binding Configuration}" DockPanel.Dock="Left" />
         <viewer:HexViewer RingCount="{Binding Configuration.RingCount,Mode=OneWay}"/>
     </DockPanel>
