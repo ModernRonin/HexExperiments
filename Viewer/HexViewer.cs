@@ -39,7 +39,7 @@ public class HexViewer : Control
 
         foreach (var coordinate in Coordinates)
         {
-            var point = coordinate.ToPoint(Scale).ToPoint() + Origin;
+            var point = coordinate.ToCartesian(Scale).ToPoint() + Origin;
             drawHex(point, Scale);
         }
 
@@ -67,7 +67,7 @@ public class HexViewer : Control
     protected override void OnMouseMove(MouseEventArgs e)
     {
         var pixelPosition = e.GetPosition(this) - Origin;
-        UnderMouse = HexCoordinate.FromPoint(pixelPosition.ToVector(), Scale);
+        UnderMouse = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Scale);
     }
 
     public int RingCount

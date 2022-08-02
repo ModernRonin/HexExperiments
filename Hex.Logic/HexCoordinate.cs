@@ -9,14 +9,14 @@ public readonly record struct HexCoordinate(int Q, int R)
 
     public override string ToString() => $"({Q}/{R}/{S})";
 
-    public static HexCoordinate FromPoint(Vector2 point, float scale)
+    public static HexCoordinate FromCartesian(Vector2 point, float scale)
     {
         var q = (_rootOf3 / 3 * point.X - 1f / 3 * point.Y) / scale;
         var r = 2f / 3 * point.Y                            / scale;
         return Clamp(q, r);
     }
 
-    public Vector2 ToPoint(float scale)
+    public Vector2 ToCartesian(float scale)
     {
         var x = scale * (_rootOf3 * Q + _rootOf3 / 2f * R);
         var y = scale * (3f       / 2f * R);
