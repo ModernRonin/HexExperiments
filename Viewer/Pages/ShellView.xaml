@@ -17,6 +17,6 @@
         </Menu>
         <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom" />
         <ContentControl s:View.Model="{Binding Configuration}" DockPanel.Dock="Left" />
-        <viewer:HexViewer RingCount="{Binding Configuration.RingCount,Mode=OneWay}"/>
+        <viewer:HexViewer RingCount="{Binding Configuration.RingCount,Mode=OneWay}" UnderMouse="{Binding Status.UnderMouse, Mode=OneWayToSource}"/>
     </DockPanel>
 </Window>
