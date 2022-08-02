@@ -13,18 +13,13 @@ public class HexViewer : Control
 {
     const double SixthOfPi = Math.PI / 6;
 
-    public static readonly DependencyProperty RingCountProperty = DependencyProperty.Register(
-        nameof(RingCount),
-        typeof(int), typeof(HexViewer),
-        new FrameworkPropertyMetadata(default(int), FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty
+        RingCountProperty = MakeDp(nameof(RingCount), typeof(int), true);
 
-    public static readonly DependencyProperty UnderMouseProperty = DependencyProperty.Register(
-        nameof(UnderMouse),
-        typeof(HexCoordinate?), typeof(HexViewer), new PropertyMetadata(default(HexCoordinate?)));
+    public static readonly DependencyProperty UnderMouseProperty =
+        MakeDp(nameof(UnderMouse), typeof(HexCoordinate?));
 
-    public static readonly DependencyProperty ScaleProperty = DependencyProperty.Register(nameof(Scale),
-        typeof(float), typeof(HexViewer),
-        new FrameworkPropertyMetadata(default(float), FrameworkPropertyMetadataOptions.AffectsRender));
+    public static readonly DependencyProperty ScaleProperty = MakeDp(nameof(Scale), typeof(float), true);
 
     static HexViewer() =>
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
@@ -86,6 +81,15 @@ public class HexViewer : Control
     {
         get => (HexCoordinate?)GetValue(UnderMouseProperty);
         set => SetValue(UnderMouseProperty, value);
+    }
+
+    static DependencyProperty MakeDp(string name, Type type, bool doTriggerRenderOnChange = false)
+    {
+        var metadata = doTriggerRenderOnChange
+            ? new FrameworkPropertyMetadata(type.DefaultValue(),
+                FrameworkPropertyMetadataOptions.AffectsRender)
+            : new PropertyMetadata(type.DefaultValue());
+        return DependencyProperty.Register(name, type, typeof(HexViewer), metadata);
     }
 
     IEnumerable<HexCoordinate> Coordinates
