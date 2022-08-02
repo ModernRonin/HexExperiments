@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Viewer;
@@ -11,15 +12,24 @@ public class HexViewer : Control
 {
     const double SixthOfPi = Math.PI / 6;
 
-    public static readonly DependencyProperty RingCountProperty = DependencyProperty.Register("RingCount",
+    public static readonly DependencyProperty RingCountProperty = DependencyProperty.Register(
+        nameof(RingCount),
         typeof(int), typeof(HexViewer),
         new FrameworkPropertyMetadata(default(int), FrameworkPropertyMetadataOptions.AffectsRender));
 
-    static HexViewer()
-    {
+    public static readonly DependencyProperty UnderMouseProperty = DependencyProperty.Register(
+        nameof(UnderMouse),
+        typeof(HexCoordinate?), typeof(HexViewer), new PropertyMetadata(default(HexCoordinate?)));
+
+    public static readonly DependencyProperty ScaleProperty = DependencyProperty.Register(nameof(Scale),
+        typeof(double), typeof(HexViewer),
+        new FrameworkPropertyMetadata(default(double), FrameworkPropertyMetadataOptions.AffectsRender));
+
+    static HexViewer() =>
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
             new FrameworkPropertyMetadata(typeof(HexViewer)));
-    }
+
+    public HexViewer() => Scale = 10;
 
     protected override void OnRender(DrawingContext ctx)
     {
@@ -28,8 +38,8 @@ public class HexViewer : Control
 
         foreach (var coordinate in Coordinates)
         {
-            var point = coordinate.ToPoint(10) + new Vector(RenderSize.Width / 2, RenderSize.Height / 2);
-            drawHex(point, 10);
+            var point = coordinate.ToPoint(Scale) + Origin;
+            drawHex(point, Scale);
         }
 
         void drawHex(Point center, double scale)
@@ -51,10 +61,30 @@ public class HexViewer : Control
         }
     }
 
+    protected override void OnMouseLeave(MouseEventArgs e) => UnderMouse = null;
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        var pixelPosition = e.GetPosition(this) - Origin;
+        UnderMouse = HexCoordinate.FromPoint(pixelPosition, Scale);
+    }
+
     public int RingCount
     {
         get => (int)GetValue(RingCountProperty);
         set => SetValue(RingCountProperty, value);
+    }
+
+    public double Scale
+    {
+        get => (double)GetValue(ScaleProperty);
+        set => SetValue(ScaleProperty, value);
+    }
+
+    public HexCoordinate? UnderMouse
+    {
+        get => (HexCoordinate?)GetValue(UnderMouseProperty);
+        set => SetValue(UnderMouseProperty, value);
     }
 
     IEnumerable<HexCoordinate> Coordinates
@@ -71,4 +101,6 @@ public class HexViewer : Control
             }
         }
     }
+
+    Vector Origin => new(RenderSize.Width / 2, RenderSize.Height / 2);
 }
