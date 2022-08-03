@@ -13,10 +13,11 @@
         Height="450" Width="800">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File" />
+            <MenuItem Header="_Map">
+                <MenuItem Header="_Configure..." Click="{s:Action ConfigureMap}"/>
+            </MenuItem>
         </Menu>
         <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom" />
-        <ContentControl s:View.Model="{Binding Configuration}" DockPanel.Dock="Left" />
         <viewer:HexViewer RingCount="{Binding Configuration.RingCount,Mode=OneWay}" UnderMouse="{Binding Status.UnderMouse, Mode=OneWayToSource}"/>
     </DockPanel>
 </Window>
