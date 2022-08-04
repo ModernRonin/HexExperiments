@@ -69,7 +69,8 @@ public class HexViewer : Control
     protected override void OnMouseMove(MouseEventArgs e)
     {
         var pixelPosition = e.GetPosition(this) - Origin;
-        UnderMouse = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Scale);
+        var coordinate = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Scale);
+        UnderMouse = Cells.Select(c => c.Coordinate).Contains(coordinate) ? coordinate : null;
     }
 
     public Cell[] Cells
