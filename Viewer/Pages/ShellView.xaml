@@ -17,7 +17,10 @@
                 <MenuItem Header="_Configure..." Click="{s:Action ConfigureMap}"/>
             </MenuItem>
         </Menu>
-        <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom" />
-        <viewer:HexViewer Cells="{Binding Cells,Mode=OneWay}" UnderMouse="{Binding Status.UnderMouse, Mode=OneWayToSource}"/>
+        <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom"/>
+        <viewer:HexViewer ClipToBounds="True" Cells="{Binding Cells,Mode=OneWay}" 
+                          UnderMouseChanged="{s:Action OnHexUnderPointerChanged}"
+                          ScaleChanged="{s:Action OnScaleChanged}"
+                          />
     </DockPanel>
 </Window>

@@ -23,7 +23,7 @@ public class HexViewer : Control
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
             new FrameworkPropertyMetadata(typeof(HexViewer)));
 
-    public HexViewer() => Scale = 10;
+    public HexViewer() => Scale = 10f;
 
     protected override void OnRender(DrawingContext ctx)
     {
@@ -73,6 +73,21 @@ public class HexViewer : Control
         UnderMouse = Cells.Select(c => c.Coordinate).Contains(coordinate) ? coordinate : null;
     }
 
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    {
+        var factor = e.Delta switch
+        {
+            < 0 => 0.9f,
+            > 1 => 1.1f,
+            _ => 1f
+        };
+        Scale *= factor;
+    }
+
+    public event EventHandler<EventArgs<float>> ScaleChanged;
+
+    public event EventHandler<EventArgs<HexCoordinate?>> UnderMouseChanged;
+
     public Cell[] Cells
     {
         get => (Cell[])GetValue(CellsProperty);
@@ -82,13 +97,21 @@ public class HexViewer : Control
     public float Scale
     {
         get => (float)GetValue(ScaleProperty);
-        set => SetValue(ScaleProperty, value);
+        set
+        {
+            SetValue(ScaleProperty, value);
+            ScaleChanged?.Invoke(this, value);
+        }
     }
 
     public HexCoordinate? UnderMouse
     {
         get => (HexCoordinate?)GetValue(UnderMouseProperty);
-        set => SetValue(UnderMouseProperty, value);
+        set
+        {
+            SetValue(UnderMouseProperty, value);
+            UnderMouseChanged?.Invoke(this, value);
+        }
     }
 
     static DependencyProperty MakeDp(string name, Type type, bool doTriggerRenderOnChange = false)
