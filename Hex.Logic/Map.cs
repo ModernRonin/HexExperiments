@@ -18,7 +18,7 @@ public class Map
     public static Map Create(int radius)
     {
         var rnd = new Random(1);
-        var range = Enumerable.Range(-radius, 2 * radius).ToArray();
+        var range = Enumerable.Range(-radius, 2 * radius + 1).ToArray();
         return new Map(radius,
             range
                 .Cartesian(range, (q, r) => new HexCoordinate(q, r))
