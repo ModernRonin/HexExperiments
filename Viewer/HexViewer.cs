@@ -40,14 +40,16 @@ public class HexViewer : Control
 
         void drawHex(Point center, double scale)
         {
-            var pen = new Pen(Brushes.Red, 1);
             var corners = Enumerable.Range(0, 6).Select(corner).ToArray();
-            for (var i = 0; i < corners.Length; i++)
+            var geometry = new StreamGeometry();
+            using (var geometryContext = geometry.Open())
             {
-                var dstIndex = i < corners.Length - 1 ? i + 1 : 0;
-                var (src, dst) = (corners[i], corners[dstIndex]);
-                ctx.DrawLine(pen, src, dst);
+                geometryContext.BeginFigure(corners[0], true, true);
+                var points = new PointCollection(corners[1..]);
+                geometryContext.PolyLineTo(points, true, true);
             }
+
+            ctx.DrawGeometry(Brushes.Green, new Pen(Brushes.Red, 1), geometry);
 
             Point corner(int index)
             {
