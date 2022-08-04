@@ -35,10 +35,10 @@ public class HexViewer : Control
         foreach (var cell in Cells)
         {
             var point = cell.Coordinate.ToCartesian(Scale).ToPoint() + Origin;
-            drawHex(point, Scale);
+            drawHex(point, cell.Amount);
         }
 
-        void drawHex(Point center, double scale)
+        void drawHex(Point center, float value)
         {
             var corners = Enumerable.Range(0, 6).Select(corner).ToArray();
             var geometry = new StreamGeometry();
@@ -49,12 +49,17 @@ public class HexViewer : Control
                 geometryContext.PolyLineTo(points, true, true);
             }
 
-            ctx.DrawGeometry(Brushes.Green, new Pen(Brushes.Red, 1), geometry);
+            var fillColor = new SolidColorBrush(new Color
+            {
+                ScG = value,
+                A = 255
+            });
+            ctx.DrawGeometry(fillColor, new Pen(Brushes.Red, 1), geometry);
 
             Point corner(int index)
             {
                 var angle = SixthOfPi * (2 * index - 1);
-                return new Point(center.X + scale * Math.Cos(angle), center.Y + scale * Math.Sin(angle));
+                return new Point(center.X + Scale * Math.Cos(angle), center.Y + Scale * Math.Sin(angle));
             }
         }
     }
