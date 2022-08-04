@@ -23,15 +23,10 @@ public partial class ShellViewModel : Screen
             Map = Map.Resize(_configuration.RingCount);
     }
 
-    public void OnHexUnderPointerChanged(object _, EventArgs<HexCoordinate?> e)
-    {
+    public void OnHexUnderPointerChanged(object _, EventArgs<HexCoordinate?> e) =>
         Status.UnderMouse = e.Value;
-    }
 
-    public void OnScaleChanged(object _, EventArgs<float> e)
-    {
-        Status.Scale = e.Value;
-    }
+    public void OnScaleChanged(object _, EventArgs<float> e) => Status.Scale = e.Value;
 
     public Cell[] Cells => Map.Cells;
     public StatusViewModel Status { get; set; } = new();
