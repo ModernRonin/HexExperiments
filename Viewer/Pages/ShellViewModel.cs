@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Hex.Logic;
+﻿using Hex.Logic;
 using PropertyChanged.SourceGenerator;
 using Stylet;
 
@@ -21,11 +20,7 @@ public partial class ShellViewModel : Screen
     {
         _configuration.RingCount = Map.Radius;
         if (_windowManager.ShowDialog(_configuration).GetValueOrDefault())
-        {
-            Trace.WriteLine("resizing");
             Map = Map.Resize(_configuration.RingCount);
-        }
-        else Trace.WriteLine("cancelled");
     }
 
     public Cell[] Cells => Map.Cells;
