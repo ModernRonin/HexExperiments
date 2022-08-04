@@ -30,8 +30,10 @@ public class Map
     {
         if (newRadius == Radius) return this;
         var result = Create(newRadius);
-        foreach (var source in _cells) result._cells[source.Key] = source.Value;
+        foreach (var source in _cells.Where(c => isInResult(c.Key))) result._cells[source.Key] = source.Value;
         return result;
+
+        bool isInResult(HexCoordinate coordinate) => result._cells.ContainsKey(coordinate);
     }
 
     public Cell[] Cells => _cells.Values.ToArray();

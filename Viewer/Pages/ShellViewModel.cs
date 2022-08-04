@@ -1,31 +1,33 @@
 ﻿using System.Diagnostics;
 using Hex.Logic;
+using PropertyChanged.SourceGenerator;
 using Stylet;
 
 namespace Viewer.Pages;
 
-public class ShellViewModel : Screen
+public partial class ShellViewModel : Screen
 {
+    readonly HexConfigurationViewModel _configuration = new();
     readonly IWindowManager _windowManager;
+    [Notify] Map _map;
 
     public ShellViewModel(IWindowManager windowManager)
     {
         _windowManager = windowManager;
-        Map = Map.Create(Configuration.RingCount);
+        Map = Map.Create(_configuration.RingCount);
     }
 
     public void ConfigureMap()
     {
-        Configuration.RingCount = Map.Radius;
-        if (_windowManager.ShowDialog(Configuration).GetValueOrDefault())
+        _configuration.RingCount = Map.Radius;
+        if (_windowManager.ShowDialog(_configuration).GetValueOrDefault())
         {
             Trace.WriteLine("resizing");
-            Map.Resize(Configuration.RingCount);
+            Map = Map.Resize(_configuration.RingCount);
         }
         else Trace.WriteLine("cancelled");
     }
 
-    public HexConfigurationViewModel Configuration { get; set; } = new();
-    public Map Map { get; }
+    public Cell[] Cells => Map.Cells;
     public StatusViewModel Status { get; set; } = new();
 }
