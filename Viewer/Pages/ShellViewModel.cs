@@ -26,7 +26,7 @@ public partial class ShellViewModel : Screen
     public void OnHexUnderPointerChanged(object _, EventArgs<HexCoordinate?> e) =>
         Status.UnderMouse = e.Value;
 
-    public void OnScaleChanged(object _, EventArgs<float> e) => Status.Scale = e.Value;
+    public void OnZoomChanged(object _, EventArgs<float> e) => Status.Zoom = e.Value;
 
     public Cell[] Cells => Map.Cells;
     public StatusViewModel Status { get; set; } = new();

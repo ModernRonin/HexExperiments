@@ -20,7 +20,7 @@
         <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom"/>
         <viewer:HexViewer ClipToBounds="True" Cells="{Binding Cells,Mode=OneWay}" 
                           UnderMouseChanged="{s:Action OnHexUnderPointerChanged}"
-                          ScaleChanged="{s:Action OnScaleChanged}"
+                          ZoomChanged="{s:Action OnZoomChanged}"
                           />
     </DockPanel>
 </Window>

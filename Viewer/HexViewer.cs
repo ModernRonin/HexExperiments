@@ -14,18 +14,18 @@ public class HexViewer : Control
 
     public static readonly DependencyProperty CellsProperty = MakeDp(nameof(Cells), typeof(Cell[]), true);
 
-    public static readonly DependencyProperty MaximumScaleProperty =
-        MakeDp(nameof(MaximumScale), typeof(float), true);
-
-    float _scale;
+    public static readonly DependencyProperty MaximumZoomProperty =
+        MakeDp(nameof(MaximumZoom), typeof(float), true);
 
     HexCoordinate? _underMouse;
+
+    float _zoom;
 
     static HexViewer() =>
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
             new FrameworkPropertyMetadata(typeof(HexViewer)));
 
-    public HexViewer() => Scale = MaximumScale = 10f;
+    public HexViewer() => Zoom = MaximumZoom = 10f;
 
     protected override void OnRender(DrawingContext ctx)
     {
@@ -36,7 +36,7 @@ public class HexViewer : Control
 
         foreach (var cell in Cells)
         {
-            var point = cell.Coordinate.ToCartesian(Scale).ToPoint() + Origin;
+            var point = cell.Coordinate.ToCartesian(Zoom).ToPoint() + Origin;
             drawHex(point, cell.Amount);
         }
 
@@ -61,7 +61,7 @@ public class HexViewer : Control
             Point corner(int index)
             {
                 var angle = SixthOfPi * (2 * index - 1);
-                return new Point(center.X + Scale * Math.Cos(angle), center.Y + Scale * Math.Sin(angle));
+                return new Point(center.X + Zoom * Math.Cos(angle), center.Y + Zoom * Math.Sin(angle));
             }
         }
     }
@@ -71,7 +71,7 @@ public class HexViewer : Control
     protected override void OnMouseMove(MouseEventArgs e)
     {
         var pixelPosition = e.GetPosition(this) - Origin;
-        var coordinate = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Scale);
+        var coordinate = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Zoom);
         UnderMouse = Cells.Select(c => c.Coordinate).Contains(coordinate) ? coordinate : null;
     }
 
@@ -83,13 +83,13 @@ public class HexViewer : Control
             > 1 => 1.1f,
             _ => 1f
         };
-        Scale *= factor;
-        Scale = Math.Min(Scale, MaximumScale);
+        Zoom *= factor;
+        Zoom = Math.Min(Zoom, MaximumZoom);
     }
 
-    public event EventHandler<EventArgs<float>> ScaleChanged;
-
     public event EventHandler<EventArgs<HexCoordinate?>> UnderMouseChanged;
+
+    public event EventHandler<EventArgs<float>> ZoomChanged;
 
     public Cell[] Cells
     {
@@ -97,21 +97,10 @@ public class HexViewer : Control
         set => SetValue(CellsProperty, value);
     }
 
-    public float MaximumScale
+    public float MaximumZoom
     {
-        get => (float)GetValue(MaximumScaleProperty);
-        set => SetValue(MaximumScaleProperty, value);
-    }
-
-    public float Scale
-    {
-        get => _scale;
-        set
-        {
-            _scale = value;
-            ScaleChanged?.Invoke(this, _scale);
-            InvalidateVisual();
-        }
+        get => (float)GetValue(MaximumZoomProperty);
+        set => SetValue(MaximumZoomProperty, value);
     }
 
     public HexCoordinate? UnderMouse
@@ -121,6 +110,17 @@ public class HexViewer : Control
         {
             _underMouse = value;
             UnderMouseChanged?.Invoke(this, _underMouse);
+        }
+    }
+
+    public float Zoom
+    {
+        get => _zoom;
+        set
+        {
+            _zoom = value;
+            ZoomChanged?.Invoke(this, _zoom);
+            InvalidateVisual();
         }
     }
 
