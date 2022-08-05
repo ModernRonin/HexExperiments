@@ -12,12 +12,11 @@ public class HexViewer : Control
 {
     const double SixthOfPi = Math.PI / 6;
 
-    public static readonly DependencyProperty UnderMouseProperty =
-        MakeDp(nameof(UnderMouse), typeof(HexCoordinate?));
-
-    public static readonly DependencyProperty ScaleProperty = MakeDp(nameof(Scale), typeof(float), true);
-
     public static readonly DependencyProperty CellsProperty = MakeDp(nameof(Cells), typeof(Cell[]), true);
+
+    float _scale;
+
+    HexCoordinate? _underMouse;
 
     static HexViewer() =>
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
@@ -96,21 +95,22 @@ public class HexViewer : Control
 
     public float Scale
     {
-        get => (float)GetValue(ScaleProperty);
+        get => _scale;
         set
         {
-            SetValue(ScaleProperty, value);
-            ScaleChanged?.Invoke(this, value);
+            _scale = value;
+            ScaleChanged?.Invoke(this, _scale);
+            InvalidateVisual();
         }
     }
 
     public HexCoordinate? UnderMouse
     {
-        get => (HexCoordinate?)GetValue(UnderMouseProperty);
+        get => _underMouse;
         set
         {
-            SetValue(UnderMouseProperty, value);
-            UnderMouseChanged?.Invoke(this, value);
+            _underMouse = value;
+            UnderMouseChanged?.Invoke(this, _underMouse);
         }
     }
 
