@@ -14,6 +14,9 @@ public class HexViewer : Control
 
     public static readonly DependencyProperty CellsProperty = MakeDp(nameof(Cells), typeof(Cell[]), true);
 
+    public static readonly DependencyProperty MaximumScaleProperty =
+        MakeDp(nameof(MaximumScale), typeof(float), true);
+
     float _scale;
 
     HexCoordinate? _underMouse;
@@ -22,7 +25,7 @@ public class HexViewer : Control
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
             new FrameworkPropertyMetadata(typeof(HexViewer)));
 
-    public HexViewer() => Scale = 10f;
+    public HexViewer() => Scale = MaximumScale = 10f;
 
     protected override void OnRender(DrawingContext ctx)
     {
@@ -81,6 +84,7 @@ public class HexViewer : Control
             _ => 1f
         };
         Scale *= factor;
+        Scale = Math.Min(Scale, MaximumScale);
     }
 
     public event EventHandler<EventArgs<float>> ScaleChanged;
@@ -91,6 +95,12 @@ public class HexViewer : Control
     {
         get => (Cell[])GetValue(CellsProperty);
         set => SetValue(CellsProperty, value);
+    }
+
+    public float MaximumScale
+    {
+        get => (float)GetValue(MaximumScaleProperty);
+        set => SetValue(MaximumScaleProperty, value);
     }
 
     public float Scale
