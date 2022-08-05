@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:s="https://github.com/canton7/Stylet"
         xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:pages="clr-namespace:Viewer.Pages"
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Width="200" Height="200"
@@ -14,6 +15,7 @@
         Title="Configure map"
         ShowInTaskbar="False"
         WindowStartupLocation="CenterOwner"
+        d:DataContext="{d:DesignInstance pages:HexConfigurationViewModel}"
         >
     <Grid>
         <Grid.Resources>
