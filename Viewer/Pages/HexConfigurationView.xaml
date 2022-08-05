@@ -35,7 +35,7 @@
 
         <Label Content="Rings" Target="{Binding ElementName=RingCount}" Grid.Column="0" Grid.Row="0" />
         <Border Grid.Column="1" Grid.Row="0">
-            <Slider Minimum="0" Maximum="10" Value="{Binding RingCount}" TickPlacement="BottomRight" TickFrequency="1"
+            <Slider Minimum="0" Maximum="100" Value="{Binding RingCount}" TickPlacement="BottomRight" TickFrequency="10"
                     Name="RingCount" />
         </Border>
         <TextBlock Text="{Binding RingCount}" Grid.Column="2" Grid.Row="0" />
