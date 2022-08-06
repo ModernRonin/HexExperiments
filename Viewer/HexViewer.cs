@@ -1,34 +1,50 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Hex.Logic;
+using Vector = System.Windows.Vector;
 
 namespace Viewer;
 
 public class HexViewer : Control
 {
-    const double SixthOfPi = Math.PI / 6;
-
     public static readonly DependencyProperty CellsProperty = MakeDp(nameof(Cells), typeof(Cell[]), true);
 
     public static readonly DependencyProperty MaximumZoomProperty =
         MakeDp(nameof(MaximumZoom), typeof(float), true);
 
+    static readonly Vector2[] _directionVectors;
+
     HexCoordinate? _underMouse;
 
     float _zoom;
 
-    static HexViewer() =>
+    static HexViewer()
+    {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HexViewer),
             new FrameworkPropertyMetadata(typeof(HexViewer)));
+
+        _directionVectors = Enumerable.Range(0, 6).Select(toVector).ToArray();
+
+        Vector2 toVector(int index)
+        {
+            var sixthOfPi = Math.PI / 6;
+            var angle = sixthOfPi   * (2 * index - 1);
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        }
+    }
 
     public HexViewer() => Zoom = MaximumZoom = 10f;
 
     protected override void OnRender(DrawingContext ctx)
     {
+        Trace.WriteLine($"RenderSize: ({RenderSize.Width}, {RenderSize.Height})");
+
         ctx.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1d),
             new Rect(0, 0, RenderSize.Width, RenderSize.Height));
 
@@ -58,11 +74,7 @@ public class HexViewer : Control
             });
             ctx.DrawGeometry(fillColor, new Pen(Brushes.Red, 1), geometry);
 
-            Point corner(int index)
-            {
-                var angle = SixthOfPi * (2 * index - 1);
-                return new Point(center.X + Zoom * Math.Cos(angle), center.Y + Zoom * Math.Sin(angle));
-            }
+            Point corner(int index) => (center.ToVector() + _directionVectors[index] * Zoom).ToPoint();
         }
     }
 
@@ -70,8 +82,9 @@ public class HexViewer : Control
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
-        var pixelPosition = e.GetPosition(this) - Origin;
-        var coordinate = HexCoordinate.FromCartesian(pixelPosition.ToVector(), Zoom);
+        var pixelPosition = e.GetPosition(this);
+        var adjustedToOrigin = pixelPosition - Origin;
+        var coordinate = HexCoordinate.FromCartesian(adjustedToOrigin.ToVector(), Zoom);
         UnderMouse = Cells.Select(c => c.Coordinate).Contains(coordinate) ? coordinate : null;
     }
 
