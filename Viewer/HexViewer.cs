@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Hex.Logic;
-using Vector = System.Windows.Vector;
 
 namespace Viewer;
 
@@ -19,8 +18,10 @@ public class HexViewer : Control
 
     static readonly Vector2[] _directionVectors;
 
+    bool _isPanning;
+    Vector2 _origin;
+    Vector2 _panOrigin;
     HexCoordinate? _underMouse;
-
     float _zoom;
 
     static HexViewer()
@@ -49,14 +50,13 @@ public class HexViewer : Control
 
         foreach (var cell in Cells)
         {
-            var point = cell.Coordinate.ToCartesian(Zoom).ToPoint() + Origin;
+            var point = cell.Coordinate.ToCartesian(Zoom) + Origin;
             drawHex(point, cell.Amount);
         }
 
-        void drawHex(Point center, float value)
+        void drawHex(Vector2 center, float value)
         {
-            var centerVector = center.ToVector();
-            var corners = _directionVectors.Select(d => centerVector + d * Zoom)
+            var corners = _directionVectors.Select(d => center + d * Zoom)
                 .Select(c => c.ToPoint())
                 .ToArray();
             if (corners.All(isOutsideViewport)) return;
@@ -93,11 +93,29 @@ public class HexViewer : Control
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
-        var pixelPosition = e.GetPosition(this);
-        var adjustedToOrigin = pixelPosition - Origin;
-        var coordinate = HexCoordinate.FromCartesian(adjustedToOrigin.ToVector(), Zoom);
-        UnderMouse = Cells.Select(c => c.Coordinate).Contains(coordinate) ? coordinate : null;
+        var pixelPosition = e.GetPosition(this).ToVector();
+        if (_isPanning)
+        {
+            var current = pixelPosition;
+            var delta = current - _panOrigin;
+            _panOrigin = current;
+            Origin += delta;
+        }
+        else
+        {
+            var adjustedToOrigin = pixelPosition - Origin;
+            var coordinate = HexCoordinate.FromCartesian(adjustedToOrigin, Zoom);
+            UnderMouse = Cells.Select(c => c.Coordinate).Contains(coordinate) ? coordinate : null;
+        }
     }
+
+    protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+    {
+        _panOrigin = e.GetPosition(this).ToVector();
+        _isPanning = true;
+    }
+
+    protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) => _isPanning = false;
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
@@ -109,6 +127,11 @@ public class HexViewer : Control
         };
         Zoom *= factor;
         Zoom = Math.Min(Zoom, MaximumZoom);
+    }
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        Origin = new Vector2((float)(sizeInfo.NewSize.Width / 2), (float)(sizeInfo.NewSize.Height / 2));
     }
 
     public event EventHandler<EventArgs<HexCoordinate?>> UnderMouseChanged;
@@ -157,5 +180,13 @@ public class HexViewer : Control
         return DependencyProperty.Register(name, type, typeof(HexViewer), metadata);
     }
 
-    Vector Origin => new(RenderSize.Width / 2, RenderSize.Height / 2);
+    Vector2 Origin
+    {
+        get => _origin;
+        set
+        {
+            _origin = value;
+            InvalidateVisual();
+        }
+    }
 }
