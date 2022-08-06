@@ -62,6 +62,8 @@ public class HexViewer : Control
             var corners = _directionVectors.Select(d => centerVector + d * Zoom)
                 .Select(c => c.ToPoint())
                 .ToArray();
+            if (corners.All(isOutsideViewport)) return;
+
             var geometry = new StreamGeometry();
             using (var geometryContext = geometry.Open())
             {
@@ -76,6 +78,15 @@ public class HexViewer : Control
                 A = 255
             });
             ctx.DrawGeometry(fillColor, new Pen(Brushes.Red, 1), geometry);
+
+            bool isOutsideViewport(Point point)
+            {
+                if (point.X < 0) return true;
+                if (point.Y < 0) return true;
+                if (point.X > RenderSize.Width) return true;
+                if (point.Y > RenderSize.Height) return true;
+                return false;
+            }
         }
     }
 
