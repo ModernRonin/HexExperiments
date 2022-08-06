@@ -58,7 +58,10 @@ public class HexViewer : Control
 
         void drawHex(Point center, float value)
         {
-            var corners = Enumerable.Range(0, 6).Select(corner).ToArray();
+            var centerVector = center.ToVector();
+            var corners = _directionVectors.Select(d => centerVector + d * Zoom)
+                .Select(c => c.ToPoint())
+                .ToArray();
             var geometry = new StreamGeometry();
             using (var geometryContext = geometry.Open())
             {
@@ -73,8 +76,6 @@ public class HexViewer : Control
                 A = 255
             });
             ctx.DrawGeometry(fillColor, new Pen(Brushes.Red, 1), geometry);
-
-            Point corner(int index) => (center.ToVector() + _directionVectors[index] * Zoom).ToPoint();
         }
     }
 
