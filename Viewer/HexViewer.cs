@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Windows;
@@ -33,8 +32,8 @@ public class HexViewer : Control
 
         Vector2 toVector(int index)
         {
-            var sixthOfPi = Math.PI / 6;
-            var angle = sixthOfPi   * (2 * index - 1);
+            const double sixthOfPi = Math.PI / 6;
+            var angle = sixthOfPi * (2 * index - 1);
             return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
         }
     }
@@ -43,8 +42,6 @@ public class HexViewer : Control
 
     protected override void OnRender(DrawingContext ctx)
     {
-        Trace.WriteLine($"RenderSize: ({RenderSize.Width}, {RenderSize.Height})");
-
         ctx.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 1d),
             new Rect(0, 0, RenderSize.Width, RenderSize.Height));
 
@@ -64,14 +61,7 @@ public class HexViewer : Control
                 .ToArray();
             if (corners.All(isOutsideViewport)) return;
 
-            var geometry = new StreamGeometry();
-            using (var geometryContext = geometry.Open())
-            {
-                geometryContext.BeginFigure(corners[0], true, true);
-                var points = new PointCollection(corners[1..]);
-                geometryContext.PolyLineTo(points, true, true);
-            }
-
+            var geometry = getOutline(corners);
             var fillColor = new SolidColorBrush(new Color
             {
                 ScG = value,
@@ -87,6 +77,15 @@ public class HexViewer : Control
                 if (point.Y > RenderSize.Height) return true;
                 return false;
             }
+        }
+
+        Geometry getOutline(Point[] points)
+        {
+            var result = new StreamGeometry();
+            using var geometryContext = result.Open();
+            geometryContext.BeginFigure(points[0], true, true);
+            geometryContext.PolyLineTo(new PointCollection(points[1..]), true, true);
+            return result;
         }
     }
 
