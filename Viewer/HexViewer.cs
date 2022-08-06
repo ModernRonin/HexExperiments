@@ -67,7 +67,7 @@ public class HexViewer : Control
                 ScG = value,
                 A = 255
             });
-            ctx.DrawGeometry(fillColor, new Pen(Brushes.Red, 1), geometry);
+            ctx.DrawGeometry(fillColor, new Pen(Brushes.Red, 0), geometry);
 
             bool isOutsideViewport(Point point)
             {
