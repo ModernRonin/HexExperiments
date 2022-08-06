@@ -16,6 +16,9 @@
             <MenuItem Header="_Map">
                 <MenuItem Header="_Configure..." Click="{s:Action ConfigureMap}"/>
             </MenuItem>
+            <MenuItem Header="_Simulation">
+                <MenuItem Header="{Binding ToggleSimulationText}" Click="{s:Action ToggleSimulation}"/>
+            </MenuItem>
         </Menu>
         <ContentControl s:View.Model="{Binding Status}" DockPanel.Dock="Bottom"/>
         <viewer:HexViewer ClipToBounds="True" Cells="{Binding Cells,Mode=OneWay}" 
