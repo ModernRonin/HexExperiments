@@ -1,13 +1,9 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿namespace Hex.Logic;
 
-namespace Hex.Logic;
-
-public interface ISimulation
+public interface ISimulation : ITickable, IStartStoppable
 {
     int Framerate { get; }
     Cell[] Map { get; }
     int Radius { get; }
     Simulation Resize(int newRadius);
-    Task Run(CancellationToken ct);
 }

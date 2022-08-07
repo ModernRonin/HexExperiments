@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Windows.Threading;
 using Hex.Logic;
 using PropertyChanged.SourceGenerator;
@@ -11,10 +10,9 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 {
     const int UpdatesPerSecond = 20;
     readonly HexConfigurationViewModel _configuration = new();
-    readonly DispatcherTimer _framerateTimer = new(DispatcherPriority.Background);
+    readonly DispatcherTimer _framerateTimer = new(DispatcherPriority.Normal);
     readonly DispatcherTimer _renderTimer = new(DispatcherPriority.Normal);
     readonly IWindowManager _windowManager;
-    CancellationTokenSource _cancelSimulation;
     [Notify] ISimulation _simulation;
     [Notify] string _toggleSimulationText;
 
@@ -57,12 +55,11 @@ public sealed partial class ShellViewModel : Screen, IDisposable
         {
             _renderTimer.Stop();
             _framerateTimer.Stop();
-            _cancelSimulation.Cancel();
+            _simulation.Stop();
         }
         else
         {
-            _cancelSimulation = new CancellationTokenSource();
-            _simulation.Run(_cancelSimulation.Token);
+            _simulation.Start();
             _renderTimer.Start();
             _framerateTimer.Start();
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Hex.Logic;
 
@@ -17,13 +19,14 @@ public class FramerateCounter : IFramerateCounter
         _currentFramecount = Framerate = 0;
     }
 
-    public void Tick()
+    public void Tick(CancellationToken _)
     {
         var now = _clock.Now;
         if (now - _lastSecondStart < TimeSpan.FromSeconds(1)) ++_currentFramecount;
         else
         {
             Framerate = _currentFramecount;
+            Trace.WriteLine(Framerate);
             _lastSecondStart = now;
             _currentFramecount = 1;
         }

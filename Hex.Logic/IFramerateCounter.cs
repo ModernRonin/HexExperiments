@@ -1,8 +1,7 @@
 ﻿namespace Hex.Logic;
 
-public interface IFramerateCounter
+public interface IFramerateCounter : ITickable
 {
     int Framerate { get; }
     void Start();
-    void Tick();
 }
