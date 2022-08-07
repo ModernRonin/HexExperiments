@@ -44,9 +44,7 @@ public sealed partial class ShellViewModel : Screen
 
     public void ToggleSimulation()
     {
-        if (_startStoppable.IsRunning) _startStoppable.Stop();
-        else _startStoppable.Start();
-
+        _startStoppable.Toggle();
         UpdateSimulationText();
     }
 

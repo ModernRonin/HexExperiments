@@ -15,6 +15,9 @@ public sealed class CompositeStartStoppable : ICompositeStartStoppable
 
     public void Add(IStartStoppable element) => _elements.Add(element);
 
+    public void Add(int updatesPerSecond, Action action) =>
+        _elements.Add(_periodicActionFactory(updatesPerSecond, action));
+
     public void Start()
 
     {
@@ -28,6 +31,9 @@ public sealed class CompositeStartStoppable : ICompositeStartStoppable
         IsRunning = false;
     }
 
-    public void Add(int updatesPerSecond, Action action) =>
-        _elements.Add(_periodicActionFactory(updatesPerSecond, action));
+    public void Toggle()
+    {
+        if (IsRunning) Stop();
+        else Start();
+    }
 }
