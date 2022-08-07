@@ -13,13 +13,13 @@ public sealed partial class ShellViewModel : Screen, IDisposable
     readonly DispatcherTimer _timer = new(DispatcherPriority.Normal);
     readonly IWindowManager _windowManager;
     CancellationTokenSource _cancelSimulation;
-    [Notify] Map _map;
+    [Notify] Simulation _simulation;
     [Notify] string _toggleSimulationText;
 
     public ShellViewModel(IWindowManager windowManager)
     {
         _windowManager = windowManager;
-        Map = Map.Create(_configuration.RingCount);
+        Simulation = Simulation.Create(_configuration.RingCount);
         _timer.Interval = TimeSpan.FromSeconds(1d / 20);
         _timer.Tick += OnTick;
         UpdateSimulationText();
@@ -29,9 +29,9 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 
     public void ConfigureMap()
     {
-        _configuration.RingCount = Map.Radius;
+        _configuration.RingCount = Simulation.Radius;
         if (_windowManager.ShowDialog(_configuration).GetValueOrDefault())
-            Map = Map.Resize(_configuration.RingCount);
+            Simulation = Simulation.Resize(_configuration.RingCount);
     }
 
     public void OnHexUnderPointerChanged(object _, EventArgs<HexCoordinate?> e) =>
@@ -49,14 +49,14 @@ public sealed partial class ShellViewModel : Screen, IDisposable
         else
         {
             _cancelSimulation = new CancellationTokenSource();
-            _map.Run(_cancelSimulation.Token);
+            _simulation.Run(_cancelSimulation.Token);
             _timer.Start();
         }
 
         UpdateSimulationText();
     }
 
-    public Cell[] Cells => Map.Cells;
+    public Cell[] Cells => Simulation.Map;
     public StatusViewModel Status { get; set; } = new();
 
     void OnTick(object sender, EventArgs e)

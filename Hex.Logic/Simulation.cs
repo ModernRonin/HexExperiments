@@ -8,40 +8,40 @@ using MoreLinq;
 
 namespace Hex.Logic;
 
-public class Map
+public class Simulation
 {
-    ImmutableDictionary<HexCoordinate, Cell> _cells;
+    ImmutableDictionary<HexCoordinate, Cell> _coordinatesToCells;
 
-    Map(int radius, IEnumerable<Cell> cells)
+    Simulation(int radius, IEnumerable<Cell> cells)
     {
         Radius = radius;
-        _cells = cells.ToImmutableDictionary(c => c.Coordinate, c => c);
+        _coordinatesToCells = cells.ToImmutableDictionary(c => c.Coordinate, c => c);
     }
 
-    public static Map Create(int radius)
+    public static Simulation Create(int radius)
     {
         var rnd = new Random(1);
         var range = Enumerable.Range(-radius, 2 * radius + 1).ToArray();
-        return new Map(radius,
+        return new Simulation(radius,
             range
                 .Cartesian(range, (q, r) => new HexCoordinate(q, r))
                 .Where(c => Math.Abs(c.S) <= radius)
                 .Select(c => new Cell(c, rnd.NextSingle())));
     }
 
-    public Map Resize(int newRadius)
+    public Simulation Resize(int newRadius)
     {
         if (newRadius == Radius) return this;
         var result = Create(newRadius);
-        foreach (var source in _cells.Where(c => isInResult(c.Key)))
+        foreach (var source in _coordinatesToCells.Where(c => isInResult(c.Key)))
         {
-            ImmutableInterlocked.AddOrUpdate(ref result._cells, source.Key, source.Value,
+            ImmutableInterlocked.AddOrUpdate(ref result._coordinatesToCells, source.Key, source.Value,
                 (_, _) => source.Value);
         }
 
         return result;
 
-        bool isInResult(HexCoordinate coordinate) => result._cells.ContainsKey(coordinate);
+        bool isInResult(HexCoordinate coordinate) => result._coordinatesToCells.ContainsKey(coordinate);
     }
 
     public Task Run(CancellationToken ct) =>
@@ -49,8 +49,8 @@ public class Map
         {
             while (!ct.IsCancellationRequested)
             {
-                Interlocked.Exchange(ref _cells,
-                    _cells.Values.AsParallel()
+                Interlocked.Exchange(ref _coordinatesToCells,
+                    _coordinatesToCells.Values.AsParallel()
                         .WithDegreeOfParallelism(5)
                         .WithCancellation(ct)
                         .Select(c => c.Update())
@@ -58,6 +58,6 @@ public class Map
             }
         }, ct);
 
-    public Cell[] Cells => _cells.Values.ToArray();
+    public Cell[] Map => _coordinatesToCells.Values.ToArray();
     public int Radius { get; }
 }
