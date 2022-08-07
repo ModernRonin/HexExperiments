@@ -9,23 +9,37 @@ namespace Viewer.Pages;
 
 public sealed partial class ShellViewModel : Screen, IDisposable
 {
+    const int UpdatesPerSecond = 20;
     readonly HexConfigurationViewModel _configuration = new();
-    readonly DispatcherTimer _timer = new(DispatcherPriority.Normal);
+    readonly IEventAggregator _eventAggregator;
+    readonly DispatcherTimer _framerateTimer = new(DispatcherPriority.Background);
+    readonly DispatcherTimer _renderTimer = new(DispatcherPriority.Normal);
     readonly IWindowManager _windowManager;
     CancellationTokenSource _cancelSimulation;
     [Notify] Simulation _simulation;
     [Notify] string _toggleSimulationText;
 
-    public ShellViewModel(IWindowManager windowManager)
+    public ShellViewModel(IWindowManager windowManager,
+        IEventAggregator eventAggregator,
+        StatusViewModel status)
     {
         _windowManager = windowManager;
+        _eventAggregator = eventAggregator;
+        Status = status;
         Simulation = Simulation.Create(_configuration.RingCount);
-        _timer.Interval = TimeSpan.FromSeconds(1d / 20);
-        _timer.Tick += OnTick;
+        _renderTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
+        _renderTimer.Tick += OnRenderTick;
+        _framerateTimer.Interval = TimeSpan.FromSeconds(1);
+        _framerateTimer.Tick += OnFramerateTick;
+
         UpdateSimulationText();
     }
 
-    public void Dispose() => _timer.Tick -= OnTick;
+    public void Dispose()
+    {
+        _renderTimer.Tick -= OnRenderTick;
+        _framerateTimer.Tick -= OnFramerateTick;
+    }
 
     public void ConfigureMap()
     {
@@ -41,28 +55,31 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 
     public void ToggleSimulation()
     {
-        if (_timer.IsEnabled)
+        if (_renderTimer.IsEnabled)
         {
-            _timer.Stop();
+            _renderTimer.Stop();
+            _framerateTimer.Stop();
             _cancelSimulation.Cancel();
         }
         else
         {
             _cancelSimulation = new CancellationTokenSource();
             _simulation.Run(_cancelSimulation.Token);
-            _timer.Start();
+            _renderTimer.Start();
+            _framerateTimer.Start();
         }
 
         UpdateSimulationText();
     }
 
     public Cell[] Cells => Simulation.Map;
-    public StatusViewModel Status { get; set; } = new();
 
-    void OnTick(object sender, EventArgs e)
-    {
-        NotifyOfPropertyChange(() => Cells);
-    }
+    public StatusViewModel Status { get; }
 
-    void UpdateSimulationText() => ToggleSimulationText = _timer.IsEnabled ? "_Stop" : "_Start";
+    void OnFramerateTick(object sender, EventArgs e) =>
+        _eventAggregator.PublishOnUIThread(new FramerateUpdate(Simulation.Framerate));
+
+    void OnRenderTick(object sender, EventArgs e) => NotifyOfPropertyChange(() => Cells);
+
+    void UpdateSimulationText() => ToggleSimulationText = _renderTimer.IsEnabled ? "_Stop" : "_Start";
 }

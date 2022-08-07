@@ -47,16 +47,27 @@ public class Simulation
     public Task Run(CancellationToken ct) =>
         Task.Run(() =>
         {
+            Framerate = 0;
+            var started = DateTime.UtcNow;
             while (!ct.IsCancellationRequested)
             {
                 Interlocked.Exchange(ref _coordinatesToCells,
-                    _coordinatesToCells.Values.AsParallel()
+                    _coordinatesToCells!.Values.AsParallel()
                         .WithDegreeOfParallelism(5)
                         .WithCancellation(ct)
                         .Select(c => c.Update())
                         .ToImmutableDictionary(c => c.Coordinate, c => c));
+                var now = DateTime.UtcNow;
+                if (now - started > TimeSpan.FromSeconds(1))
+                {
+                    Framerate = 1;
+                    started = now;
+                }
+                else ++Framerate;
             }
         }, ct);
+
+    public int Framerate { get; private set; }
 
     public Cell[] Map => _coordinatesToCells.Values.ToArray();
     public int Radius { get; }
