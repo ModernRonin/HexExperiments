@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Hex.Logic;
@@ -26,7 +25,6 @@ public class FramerateCounter : IFramerateCounter
         else
         {
             Framerate = _currentFramecount;
-            Trace.WriteLine(Framerate);
             _lastSecondStart = now;
             _currentFramecount = 1;
         }
