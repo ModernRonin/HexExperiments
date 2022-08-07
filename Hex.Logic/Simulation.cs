@@ -8,33 +8,39 @@ using MoreLinq;
 
 namespace Hex.Logic;
 
-public class Simulation
+public class Simulation : ISimulation
 {
-    readonly FramerateCounter _framerate;
+    readonly IFramerateCounter _framerate;
+    readonly IRandomity _randomity;
     ImmutableDictionary<HexCoordinate, Cell> _coordinatesToCells;
 
-    Simulation(int radius, IEnumerable<Cell> cells)
+    public Simulation(IFramerateCounter framerate, IRandomity randomity, int radius)
     {
+        _framerate = framerate;
+        _randomity = randomity;
+        _coordinatesToCells = create().ToImmutableDictionary(c => c.Coordinate, c => c);
         Radius = radius;
-        _coordinatesToCells = cells.ToImmutableDictionary(c => c.Coordinate, c => c);
-        _framerate = new FramerateCounter(new DefaultClock());
+
+        IEnumerable<Cell> create()
+        {
+            var range = Enumerable.Range(-radius, 2 * radius + 1).ToArray();
+            return
+                range
+                    .Cartesian(range, (q, r) => new HexCoordinate(q, r))
+                    .Where(c => Math.Abs(c.S) <= radius)
+                    .Select(c => new Cell(c, randomity.Float()));
+        }
     }
 
-    public static Simulation Create(int radius)
-    {
-        var rnd = new Random(1);
-        var range = Enumerable.Range(-radius, 2 * radius + 1).ToArray();
-        return new Simulation(radius,
-            range
-                .Cartesian(range, (q, r) => new HexCoordinate(q, r))
-                .Where(c => Math.Abs(c.S) <= radius)
-                .Select(c => new Cell(c, rnd.NextSingle())));
-    }
+    public int Framerate => _framerate.Framerate;
+
+    public Cell[] Map => _coordinatesToCells.Values.ToArray();
+    public int Radius { get; }
 
     public Simulation Resize(int newRadius)
     {
         if (newRadius == Radius) return this;
-        var result = Create(newRadius);
+        var result = new Simulation(_framerate, _randomity, newRadius);
         foreach (var source in _coordinatesToCells.Where(c => isInResult(c.Key)))
         {
             ImmutableInterlocked.AddOrUpdate(ref result._coordinatesToCells, source.Key, source.Value,
@@ -61,47 +67,4 @@ public class Simulation
                 _framerate.Tick();
             }
         }, ct);
-
-    public int Framerate => _framerate.Framerate;
-
-    public Cell[] Map => _coordinatesToCells.Values.ToArray();
-    public int Radius { get; }
-}
-
-public interface IClock
-{
-    DateTime Now { get; }
-}
-
-public class DefaultClock : IClock
-{
-    public DateTime Now => DateTime.UtcNow;
-}
-
-public class FramerateCounter
-{
-    readonly IClock _clock;
-    int _currentFramecount;
-    DateTime _lastSecondStart;
-    public FramerateCounter(IClock clock) => _clock = clock;
-
-    public void Start()
-    {
-        _lastSecondStart = _clock.Now;
-        _currentFramecount = Framerate = 0;
-    }
-
-    public void Tick()
-    {
-        var now = _clock.Now;
-        if (now - _lastSecondStart < TimeSpan.FromSeconds(1)) ++_currentFramecount;
-        else
-        {
-            Framerate = _currentFramecount;
-            _lastSecondStart = now;
-            _currentFramecount = 1;
-        }
-    }
-
-    public int Framerate { get; private set; }
 }

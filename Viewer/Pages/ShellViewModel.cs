@@ -15,18 +15,19 @@ public sealed partial class ShellViewModel : Screen, IDisposable
     readonly DispatcherTimer _renderTimer = new(DispatcherPriority.Normal);
     readonly IWindowManager _windowManager;
     CancellationTokenSource _cancelSimulation;
-    [Notify] Simulation _simulation;
+    [Notify] ISimulation _simulation;
     [Notify] string _toggleSimulationText;
 
     public ShellViewModel(IWindowManager windowManager,
-        StatusViewModel status)
+        StatusViewModel status,
+        Func<int, ISimulation> simulationFactory)
     {
         _windowManager = windowManager;
         Status = status;
-        Simulation = Simulation.Create(_configuration.RingCount);
+        Simulation = simulationFactory(_configuration.RingCount);
         _renderTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
         _renderTimer.Tick += OnRenderTick;
-        _framerateTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
+        _framerateTimer.Interval = TimeSpan.FromSeconds(1d);
         _framerateTimer.Tick += OnFramerateTick;
 
         UpdateSimulationText();

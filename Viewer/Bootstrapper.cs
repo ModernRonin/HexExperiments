@@ -1,19 +1,13 @@
-﻿using Viewer.Pages;
-using Stylet;
-using StyletIoC;
+﻿using Autofac;
+using Hex.Logic;
+using Viewer.Pages;
 
-namespace Viewer
+namespace Viewer;
+
+public class Bootstrapper : AutofacBootstrapper<ShellViewModel>
 {
-    public class Bootstrapper : Bootstrapper<ShellViewModel>
+    protected override void ConfigureIoC(ContainerBuilder builder)
     {
-        protected override void ConfigureIoC(IStyletIoCBuilder builder)
-        {
-            // Configure the IoC container in here
-        }
-
-        protected override void Configure()
-        {
-            // Perform any other configuration before the application starts
-        }
+        builder.RegisterModule<HexLogicModule>();
     }
 }

@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Autofac" Version="6.4.0" />
 		<PackageReference Include="ModernWpfUI" Version="0.9.6" />
 		<PackageReference Include="PropertyChanged.SourceGenerator" Version="1.0.4">
 			<PrivateAssets>all</PrivateAssets>
