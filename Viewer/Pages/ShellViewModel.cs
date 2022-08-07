@@ -26,7 +26,7 @@ public sealed partial class ShellViewModel : Screen, IDisposable
         Simulation = Simulation.Create(_configuration.RingCount);
         _renderTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
         _renderTimer.Tick += OnRenderTick;
-        _framerateTimer.Interval = TimeSpan.FromSeconds(1);
+        _framerateTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
         _framerateTimer.Tick += OnFramerateTick;
 
         UpdateSimulationText();

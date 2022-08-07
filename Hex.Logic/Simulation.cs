@@ -10,12 +10,14 @@ namespace Hex.Logic;
 
 public class Simulation
 {
+    readonly FramerateCounter _framerate;
     ImmutableDictionary<HexCoordinate, Cell> _coordinatesToCells;
 
     Simulation(int radius, IEnumerable<Cell> cells)
     {
         Radius = radius;
         _coordinatesToCells = cells.ToImmutableDictionary(c => c.Coordinate, c => c);
+        _framerate = new FramerateCounter(new DefaultClock());
     }
 
     public static Simulation Create(int radius)
@@ -47,8 +49,7 @@ public class Simulation
     public Task Run(CancellationToken ct) =>
         Task.Run(() =>
         {
-            Framerate = 0;
-            var started = DateTime.UtcNow;
+            _framerate.Start();
             while (!ct.IsCancellationRequested)
             {
                 Interlocked.Exchange(ref _coordinatesToCells,
@@ -57,18 +58,50 @@ public class Simulation
                         .WithCancellation(ct)
                         .Select(c => c.Update())
                         .ToImmutableDictionary(c => c.Coordinate, c => c));
-                var now = DateTime.UtcNow;
-                if (now - started > TimeSpan.FromSeconds(1))
-                {
-                    Framerate = 1;
-                    started = now;
-                }
-                else ++Framerate;
+                _framerate.Tick();
             }
         }, ct);
 
-    public int Framerate { get; private set; }
+    public int Framerate => _framerate.Framerate;
 
     public Cell[] Map => _coordinatesToCells.Values.ToArray();
     public int Radius { get; }
+}
+
+public interface IClock
+{
+    DateTime Now { get; }
+}
+
+public class DefaultClock : IClock
+{
+    public DateTime Now => DateTime.UtcNow;
+}
+
+public class FramerateCounter
+{
+    readonly IClock _clock;
+    int _currentFramecount;
+    DateTime _lastSecondStart;
+    public FramerateCounter(IClock clock) => _clock = clock;
+
+    public void Start()
+    {
+        _lastSecondStart = _clock.Now;
+        _currentFramecount = Framerate = 0;
+    }
+
+    public void Tick()
+    {
+        var now = _clock.Now;
+        if (now - _lastSecondStart < TimeSpan.FromSeconds(1)) ++_currentFramecount;
+        else
+        {
+            Framerate = _currentFramecount;
+            _lastSecondStart = now;
+            _currentFramecount = 1;
+        }
+    }
+
+    public int Framerate { get; private set; }
 }
