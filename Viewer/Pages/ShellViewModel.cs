@@ -1,40 +1,33 @@
 ﻿using System;
-using System.Windows.Threading;
 using Hex.Logic;
 using PropertyChanged.SourceGenerator;
 using Stylet;
 
 namespace Viewer.Pages;
 
-public sealed partial class ShellViewModel : Screen, IDisposable
+public sealed partial class ShellViewModel : Screen
 {
     const int UpdatesPerSecond = 20;
     readonly HexConfigurationViewModel _configuration = new();
-    readonly DispatcherTimer _framerateTimer = new(DispatcherPriority.Normal);
-    readonly DispatcherTimer _renderTimer = new(DispatcherPriority.Normal);
+    readonly ICompositeStartStoppable _startStoppable;
     readonly IWindowManager _windowManager;
     [Notify] ISimulation _simulation;
     [Notify] string _toggleSimulationText;
 
     public ShellViewModel(IWindowManager windowManager,
         StatusViewModel status,
-        Func<int, ISimulation> simulationFactory)
+        Func<int, ISimulation> simulationFactory,
+        ICompositeStartStoppable startStoppable)
     {
         _windowManager = windowManager;
+        _startStoppable = startStoppable;
         Status = status;
         Simulation = simulationFactory(_configuration.RingCount);
-        _renderTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
-        _renderTimer.Tick += OnRenderTick;
-        _framerateTimer.Interval = TimeSpan.FromSeconds(1d);
-        _framerateTimer.Tick += OnFramerateTick;
+        _startStoppable.Add(Simulation);
+        _startStoppable.Add(1, () => Status.Framerate = Simulation.Framerate);
+        _startStoppable.Add(UpdatesPerSecond, () => NotifyOfPropertyChange(() => Cells));
 
         UpdateSimulationText();
-    }
-
-    public void Dispose()
-    {
-        _renderTimer.Tick -= OnRenderTick;
-        _framerateTimer.Tick -= OnFramerateTick;
     }
 
     public void ConfigureMap()
@@ -51,18 +44,8 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 
     public void ToggleSimulation()
     {
-        if (_renderTimer.IsEnabled)
-        {
-            _renderTimer.Stop();
-            _framerateTimer.Stop();
-            _simulation.Stop();
-        }
-        else
-        {
-            _simulation.Start();
-            _renderTimer.Start();
-            _framerateTimer.Start();
-        }
+        if (_startStoppable.IsRunning) _startStoppable.Stop();
+        else _startStoppable.Start();
 
         UpdateSimulationText();
     }
@@ -71,9 +54,5 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 
     public StatusViewModel Status { get; }
 
-    void OnFramerateTick(object sender, EventArgs e) => Status.Framerate = Simulation.Framerate;
-
-    void OnRenderTick(object sender, EventArgs e) => NotifyOfPropertyChange(() => Cells);
-
-    void UpdateSimulationText() => ToggleSimulationText = _renderTimer.IsEnabled ? "_Stop" : "_Start";
+    void UpdateSimulationText() => ToggleSimulationText = _startStoppable.IsRunning ? "_Stop" : "_Start";
 }

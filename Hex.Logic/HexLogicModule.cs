@@ -12,5 +12,7 @@ public sealed class HexLogicModule : Module
 
         builder.RegisterType<FramerateCounter>().AsImplementedInterfaces().InstancePerDependency();
         builder.RegisterType<Runner>().AsImplementedInterfaces().InstancePerDependency();
+        builder.RegisterType<CompositeStartStoppable>().AsImplementedInterfaces().InstancePerDependency();
+        builder.RegisterType<PeriodicAction>().AsSelf().InstancePerDependency();
     }
 }
