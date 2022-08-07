@@ -21,6 +21,9 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0">
+                <TextBlock Text="{Binding FramerateText}" />
+            </StatusBarItem>
             <StatusBarItem Grid.Column="2">
                 <TextBlock Text="{Binding Zoom}" />
             </StatusBarItem>
