@@ -11,7 +11,6 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 {
     const int UpdatesPerSecond = 20;
     readonly HexConfigurationViewModel _configuration = new();
-    readonly IEventAggregator _eventAggregator;
     readonly DispatcherTimer _framerateTimer = new(DispatcherPriority.Background);
     readonly DispatcherTimer _renderTimer = new(DispatcherPriority.Normal);
     readonly IWindowManager _windowManager;
@@ -20,11 +19,9 @@ public sealed partial class ShellViewModel : Screen, IDisposable
     [Notify] string _toggleSimulationText;
 
     public ShellViewModel(IWindowManager windowManager,
-        IEventAggregator eventAggregator,
         StatusViewModel status)
     {
         _windowManager = windowManager;
-        _eventAggregator = eventAggregator;
         Status = status;
         Simulation = Simulation.Create(_configuration.RingCount);
         _renderTimer.Interval = TimeSpan.FromSeconds(1d / UpdatesPerSecond);
@@ -76,8 +73,7 @@ public sealed partial class ShellViewModel : Screen, IDisposable
 
     public StatusViewModel Status { get; }
 
-    void OnFramerateTick(object sender, EventArgs e) =>
-        _eventAggregator.PublishOnUIThread(new FramerateUpdate(Simulation.Framerate));
+    void OnFramerateTick(object sender, EventArgs e) => Status.Framerate = Simulation.Framerate;
 
     void OnRenderTick(object sender, EventArgs e) => NotifyOfPropertyChange(() => Cells);
 
